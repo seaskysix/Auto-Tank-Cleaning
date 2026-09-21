@@ -1,0 +1,2834 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>ถังใส — แอปควบคุมฝาล้างถังน้ำอัตโนมัติ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            --font: "Anuphan", "Noto Sans Thai", "Sarabun", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --page: #D3E3E7;
+            --bezel: #0B1B24;
+            --bg: #EAF3F4;
+            --surface: #FFFFFF;
+            --surface2: #F1F7F8;
+            --track: #DDEAEE;
+            --ink: #0F2A37;
+            --ink2: #4E6673;
+            --line: #D3E2E6;
+            --brand: #0B7A8A;
+            --on-brand: #FFFFFF;
+            --brand-soft: #D3ECF0;
+            --water: #2AA9BE;
+            --sed: #B9822F;
+            --chem: #3A9A52;
+            --ok: #1F8659;
+            --ok-soft: #DCF0E5;
+            --warn: #9A5C0A;
+            --warn-soft: #FBEBCF;
+            --danger: #C0342A;
+            --danger-soft: #FBE2DF;
+            --hero: #0D2B3A;
+            --hero-ink: #EAF6F8;
+            --hero-dim: #9DC0CB;
+            --water-h: #5CCDE0;
+            --sed-h: #D9A04A;
+            --chem-h: #63D07E;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --page: #050F16;
+                --bezel: #02080C;
+                --bg: #0A1E29;
+                --surface: #112F3E;
+                --surface2: #163A4A;
+                --track: #1D4657;
+                --ink: #E7F3F6;
+                --ink2: #9BB7C2;
+                --line: #21495A;
+                --brand: #4CC9D9;
+                --on-brand: #04222A;
+                --brand-soft: #15464F;
+                --water: #4CC3D6;
+                --sed: #D9A04A;
+                --chem: #5CBF74;
+                --ok: #4CC28C;
+                --ok-soft: #12382B;
+                --warn: #E8A84C;
+                --warn-soft: #3A2E17;
+                --danger: #F07468;
+                --danger-soft: #3E1F1F;
+                --hero: #0F3648;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --page: #050F16;
+            --bezel: #02080C;
+            --bg: #0A1E29;
+            --surface: #112F3E;
+            --surface2: #163A4A;
+            --track: #1D4657;
+            --ink: #E7F3F6;
+            --ink2: #9BB7C2;
+            --line: #21495A;
+            --brand: #4CC9D9;
+            --on-brand: #04222A;
+            --brand-soft: #15464F;
+            --water: #4CC3D6;
+            --sed: #D9A04A;
+            --chem: #5CBF74;
+            --ok: #4CC28C;
+            --ok-soft: #12382B;
+            --warn: #E8A84C;
+            --warn-soft: #3A2E17;
+            --danger: #F07468;
+            --danger-soft: #3E1F1F;
+            --hero: #0F3648;
+        }
+
+        html {
+            height: 100%;
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+            background: var(--page)
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            background: transparent;
+            color: var(--ink);
+            font-family: var(--font);
+            font-size: 15px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box
+        }
+
+        [hidden] {
+            display: none !important
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p {
+            margin: 0
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--brand);
+            outline-offset: 2px
+        }
+
+        .i {
+            width: 22px;
+            height: 22px;
+            flex: none
+        }
+
+        .i.s {
+            width: 18px;
+            height: 18px
+        }
+
+        .muted {
+            color: var(--ink2)
+        }
+
+        b,
+        strong {
+            font-weight: 600
+        }
+
+        .num {
+            font-variant-numeric: tabular-nums
+        }
+
+        /* ---------- stage + phone ---------- */
+        .stage {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 64px;
+            padding: 16px
+        }
+
+        .side {
+            width: 300px
+        }
+
+        .side .mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 18px
+        }
+
+        .side h1 {
+            font-size: 26px;
+            line-height: 1.35;
+            font-weight: 700;
+            margin-bottom: 10px
+        }
+
+        .side p {
+            color: var(--ink2);
+            margin-bottom: 18px
+        }
+
+        .side-nav {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 22px
+        }
+
+        .side-nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 46px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            text-align: left
+        }
+
+        .side-nav button[aria-current="true"] {
+            border-color: var(--brand);
+            background: var(--brand-soft);
+            color: var(--ink)
+        }
+
+        .side small {
+            display: block;
+            color: var(--ink2);
+            font-size: 13px
+        }
+
+        .phone {
+            position: relative;
+            width: 390px;
+            height: min(844px, 100%);
+            border: 9px solid var(--bezel);
+            border-radius: 50px;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 30px 60px -20px rgba(4, 25, 35, .45)
+        }
+
+        .statusbar {
+            height: 40px;
+            flex: none;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 28px 4px;
+            font-weight: 600;
+            font-size: 14px
+        }
+
+        .statusbar span:last-child {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 12px
+        }
+
+        .viewport {
+            position: relative;
+            flex: 1;
+            min-height: 0
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px 16px 28px;
+            display: none;
+            overscroll-behavior: contain
+        }
+
+        .screen.on {
+            display: block
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 46px;
+            margin-bottom: 12px
+        }
+
+        .top h2 {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.3
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px
+        }
+
+        .logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            background: var(--brand);
+            color: var(--on-brand);
+            display: grid;
+            place-items: center
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--ok-soft);
+            color: var(--ok)
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            display: inline-block
+        }
+
+        .dot.pulse {
+            animation: pulse 1.6s ease-out infinite
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent)
+            }
+
+            100% {
+                box-shadow: 0 0 0 8px transparent
+            }
+        }
+
+        /* ---------- cards + buttons ---------- */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 14px
+        }
+
+        .card-h {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px
+        }
+
+        .card-h h3 {
+            font-size: 17px;
+            font-weight: 700
+        }
+
+        .card-h span {
+            font-size: 13px
+        }
+
+        .btn {
+            width: 100%;
+            min-height: 54px;
+            border-radius: 16px;
+            border: 0;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 0 18px;
+            background: var(--brand);
+            color: var(--on-brand)
+        }
+
+        .btn:active {
+            transform: scale(.985)
+        }
+
+        .btn.ghost {
+            background: transparent;
+            color: var(--ink);
+            border: 1.5px solid var(--line)
+        }
+
+        .btn.soft {
+            background: var(--brand-soft);
+            color: var(--ink)
+        }
+
+        .btn.danger {
+            background: var(--danger-soft);
+            color: var(--danger)
+        }
+
+        .btn.danger-solid {
+            background: var(--danger);
+            color: #fff
+        }
+
+        .btn.sm {
+            width: auto;
+            min-height: 44px;
+            font-size: 15px;
+            border-radius: 14px;
+            padding: 0 16px
+        }
+
+        .btn[disabled] {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .row-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            min-height: 64px;
+            padding: 12px 16px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            border-radius: 20px;
+            margin-bottom: 14px
+        }
+
+        .row-link .ic {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--brand-soft);
+            color: var(--brand);
+            display: grid;
+            place-items: center
+        }
+
+        .row-link div {
+            flex: 1;
+            min-width: 0
+        }
+
+        .row-link small {
+            display: block;
+            color: var(--ink2);
+            font-size: 13px;
+            line-height: 1.3
+        }
+
+        .row-link b {
+            display: block;
+            font-size: 15.5px
+        }
+
+        .bar {
+            height: 6px;
+            border-radius: 99px;
+            background: var(--track);
+            overflow: hidden
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: var(--c, var(--brand));
+            transition: width .5s ease
+        }
+
+        .bar.big {
+            height: 10px
+        }
+
+        /* ---------- hero ---------- */
+        .hero {
+            --track: rgba(255, 255, 255, .16);
+            background: var(--hero);
+            color: var(--hero-ink);
+            border-radius: 30px;
+            padding: 16px 16px 18px;
+            margin-bottom: 14px
+        }
+
+        .hero[data-st="great"] {
+            --st-bg: #1F6F55;
+            --st-fg: #C9F5E2
+        }
+
+        .hero[data-st="ok"] {
+            --st-bg: #1B5A66;
+            --st-fg: #C6EEF5
+        }
+
+        .hero[data-st="should"] {
+            --st-bg: #7A5417;
+            --st-fg: #FFE1A8
+        }
+
+        .hero[data-st="bad"] {
+            --st-bg: #8A2B25;
+            --st-fg: #FFD3CE
+        }
+
+        .hero[data-st="run"] {
+            --st-bg: #1E5F8C;
+            --st-fg: #D2EBFF
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13.5px;
+            color: var(--hero-dim)
+        }
+
+        .tag {
+            padding: 3px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--st-bg);
+            color: var(--st-fg)
+        }
+
+        .hero-main {
+            display: grid;
+            grid-template-columns: 142px 1fr;
+            gap: 8px;
+            align-items: center;
+            margin: 8px 0 12px
+        }
+
+        .tank {
+            width: 100%;
+            height: auto;
+            display: block;
+            overflow: visible
+        }
+
+        .hero-read .lbl {
+            font-size: 13.5px;
+            color: var(--hero-dim)
+        }
+
+        .big {
+            font-size: 66px;
+            font-weight: 700;
+            line-height: 1.05;
+            font-variant-numeric: tabular-nums
+        }
+
+        .big small {
+            font-size: 24px;
+            font-weight: 600;
+            margin-left: 3px;
+            color: var(--hero-dim)
+        }
+
+        .verdict {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.35;
+            margin: 4px 0 6px
+        }
+
+        .hero-read .sub {
+            font-size: 13px;
+            color: var(--hero-dim)
+        }
+
+        .hero-bars {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px
+        }
+
+        .hb-l {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--hero-dim);
+            margin-bottom: 2px
+        }
+
+        .hb-v {
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            font-variant-numeric: tabular-nums
+        }
+
+        .hb-v small {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--hero-dim);
+            margin-left: 1px
+        }
+
+        .hb.flag .hb-v {
+            color: #FFB8B0
+        }
+
+        .hb.flag .bar i {
+            background: #F07468 !important
+        }
+
+        /* tank svg states */
+        .tank .wave {
+            animation: wave 2.6s linear infinite
+        }
+
+        @keyframes wave {
+            to {
+                transform: translateX(-30px)
+            }
+        }
+
+        .tank .spray {
+            opacity: 0;
+            transition: opacity .3s
+        }
+
+        .tank .spray line {
+            stroke: var(--water-h);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 4 7;
+            animation: flow .7s linear infinite
+        }
+
+        .tank[data-step="2"] .spray line {
+            stroke: var(--chem-h)
+        }
+
+        .tank:is([data-step="1"], [data-step="2"], [data-step="3"]) .spray {
+            opacity: 1
+        }
+
+        .tank:is([data-step="1"], [data-step="2"], [data-step="3"]) .nozzle {
+            animation: spin 1.1s linear infinite
+        }
+
+        .nozzle {
+            transform-box: fill-box;
+            transform-origin: center
+        }
+
+        .tank .flow {
+            stroke: var(--hero-dim);
+            stroke-width: 4;
+            stroke-linecap: round;
+            fill: none;
+            opacity: .35
+        }
+
+        .tank[data-step="0"] .flow.drain,
+        .tank[data-step="4"] .flow.suck {
+            opacity: 1;
+            stroke: var(--water-h);
+            stroke-dasharray: 4 7;
+            animation: flow .6s linear infinite
+        }
+
+        .tank[data-step="4"] .flow.suck {
+            stroke: var(--sed-h);
+            animation-direction: reverse
+        }
+
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -22
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* ---------- alert banner ---------- */
+        .banner {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 14px
+        }
+
+        .al {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 12px
+        }
+
+        .warn.al,
+        .banner.warn {
+            background: var(--warn-soft);
+            color: var(--ink)
+        }
+
+        .danger.al,
+        .banner.danger {
+            background: var(--danger-soft);
+            color: var(--ink)
+        }
+
+        .al-ic {
+            width: 40px;
+            height: 40px;
+            flex: none;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: var(--surface);
+            color: var(--warn)
+        }
+
+        .danger .al-ic {
+            color: var(--danger)
+        }
+
+        .al-b {
+            flex: 1;
+            min-width: 0
+        }
+
+        .al-b h4 {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.35
+        }
+
+        .al-b p {
+            font-size: 14px;
+            color: var(--ink2);
+            margin: 2px 0 10px;
+            line-height: 1.5
+        }
+
+        .al-b p b {
+            color: var(--ink)
+        }
+
+        .empty {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 16px;
+            border-radius: 20px;
+            background: var(--ok-soft);
+            color: var(--ok);
+            margin-bottom: 12px
+        }
+
+        .empty p {
+            color: var(--ink);
+            font-size: 14.5px
+        }
+
+        .empty b {
+            display: block;
+            font-size: 16px
+        }
+
+        /* ---------- stepper + tiles ---------- */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            list-style: none;
+            margin: 0 0 14px;
+            padding: 0
+        }
+
+        .steps li {
+            position: relative;
+            text-align: center;
+            font-size: 12.5px;
+            line-height: 1.3;
+            color: var(--ink2)
+        }
+
+        .steps li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: calc(50% + 19px);
+            right: calc(-50% + 19px);
+            height: 2px;
+            background: var(--line)
+        }
+
+        .steps .n {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 6px;
+            background: var(--surface2);
+            border: 2px solid var(--line);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--ink2);
+            position: relative;
+            z-index: 1
+        }
+
+        .steps li.done .n {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: var(--on-brand);
+            font-size: 0
+        }
+
+        .steps li.done .n::before {
+            content: "✓";
+            font-size: 15px
+        }
+
+        .steps li.done::after {
+            background: var(--brand)
+        }
+
+        .steps li.cur {
+            color: var(--ink);
+            font-weight: 600
+        }
+
+        .steps li.cur .n {
+            border-color: var(--brand);
+            color: var(--brand);
+            background: var(--surface);
+            box-shadow: 0 0 0 5px var(--brand-soft);
+            animation: ring 1.6s ease-in-out infinite
+        }
+
+        @keyframes ring {
+            50% {
+                box-shadow: 0 0 0 8px var(--brand-soft)
+            }
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: var(--ink2);
+            text-align: center;
+            margin-bottom: 14px;
+            min-height: 22px
+        }
+
+        .prog {
+            margin-bottom: 14px
+        }
+
+        .prog-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13.5px;
+            color: var(--ink2);
+            margin-top: 6px
+        }
+
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px
+        }
+
+        .tile {
+            min-height: 88px;
+            border: 1.5px solid var(--line);
+            background: var(--surface2);
+            border-radius: 18px;
+            padding: 10px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.3;
+            text-align: center
+        }
+
+        .tile small {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--ink2)
+        }
+
+        .tile.on {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: var(--on-brand)
+        }
+
+        .tile.on small {
+            color: var(--on-brand);
+            opacity: .85
+        }
+
+        .tile[disabled] {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        /* ---------- monitor ---------- */
+        .gauge-wrap {
+            position: relative;
+            max-width: 300px;
+            margin: 0 auto 6px
+        }
+
+        .gauge {
+            width: 100%;
+            display: block
+        }
+
+        .g-track {
+            fill: none;
+            stroke: var(--track);
+            stroke-width: 16;
+            stroke-linecap: round
+        }
+
+        .g-fill {
+            fill: none;
+            stroke: var(--gc, var(--brand));
+            stroke-width: 16;
+            stroke-linecap: round;
+            transition: stroke-dasharray .5s
+        }
+
+        .g-read {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 2px;
+            text-align: center
+        }
+
+        .g-read .big {
+            font-size: 52px;
+            color: var(--ink)
+        }
+
+        .g-read .big small {
+            color: var(--ink2);
+            font-size: 20px
+        }
+
+        .g-read span {
+            font-size: 14px;
+            color: var(--ink2)
+        }
+
+        .gauge-card[data-st="great"] {
+            --gc: var(--ok)
+        }
+
+        .gauge-card[data-st="ok"] {
+            --gc: var(--brand)
+        }
+
+        .gauge-card[data-st="should"] {
+            --gc: #D08A1E
+        }
+
+        .gauge-card[data-st="bad"] {
+            --gc: var(--danger)
+        }
+
+        .g-verdict {
+            text-align: center;
+            font-weight: 600;
+            margin: 6px 0 12px
+        }
+
+        .mini3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px
+        }
+
+        .mini3 div {
+            background: var(--surface2);
+            border-radius: 14px;
+            padding: 8px 6px;
+            text-align: center
+        }
+
+        .mini3 b {
+            display: block;
+            font-size: 18px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.4
+        }
+
+        .mini3 small {
+            font-size: 12px;
+            color: var(--ink2)
+        }
+
+        .m-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0
+        }
+
+        .m-row+.m-row {
+            border-top: 1px solid var(--line)
+        }
+
+        .m-ic {
+            width: 40px;
+            height: 40px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: color-mix(in srgb, var(--c) 16%, transparent);
+            color: var(--c);
+            flex: none
+        }
+
+        .m-b {
+            flex: 1;
+            min-width: 0
+        }
+
+        .m-t {
+            font-weight: 600;
+            font-size: 15px
+        }
+
+        .m-s {
+            font-size: 12.5px;
+            color: var(--ink2);
+            margin-bottom: 6px;
+            line-height: 1.35
+        }
+
+        .m-v {
+            font-size: 28px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            min-width: 74px;
+            text-align: right
+        }
+
+        .m-v small {
+            font-size: 14px;
+            color: var(--ink2);
+            font-weight: 500
+        }
+
+        .seg {
+            display: flex;
+            background: var(--surface2);
+            border-radius: 14px;
+            padding: 4px;
+            gap: 4px
+        }
+
+        .seg button {
+            flex: 1;
+            min-height: 42px;
+            border: 0;
+            background: transparent;
+            border-radius: 11px;
+            font-weight: 500;
+            font-size: 14.5px;
+            color: var(--ink2)
+        }
+
+        .seg button.on {
+            background: var(--surface);
+            color: var(--ink);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(5, 30, 40, .18)
+        }
+
+        .chart {
+            width: 100%;
+            display: block;
+            margin-top: 10px
+        }
+
+        .chart text {
+            font-size: 9.5px;
+            fill: var(--ink2);
+            font-family: var(--font)
+        }
+
+        .log {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        .log li {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 0;
+            font-size: 14px
+        }
+
+        .log li+li {
+            border-top: 1px solid var(--line)
+        }
+
+        .log small {
+            display: block;
+            color: var(--ink2);
+            font-size: 12.5px
+        }
+
+        .log .r {
+            text-align: right;
+            color: var(--ok);
+            font-weight: 600;
+            white-space: nowrap
+        }
+
+        /* ---------- schedule ---------- */
+        .next {
+            background: var(--brand);
+            color: var(--on-brand);
+            border-radius: 26px;
+            padding: 18px 18px 16px;
+            margin-bottom: 14px
+        }
+
+        .next small {
+            display: block;
+            font-size: 13.5px;
+            opacity: .85
+        }
+
+        .next .when {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 2px 0 2px
+        }
+
+        .next .in {
+            font-size: 14px;
+            opacity: .9
+        }
+
+        .next-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px
+        }
+
+        .switch {
+            position: relative;
+            flex: none;
+            width: 54px;
+            height: 32px;
+            border-radius: 99px;
+            border: 0;
+            background: var(--track);
+            transition: background .2s
+        }
+
+        .switch::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+            transition: transform .2s
+        }
+
+        .switch[aria-checked="true"] {
+            background: var(--brand)
+        }
+
+        .switch[aria-checked="true"]::after {
+            transform: translateX(22px)
+        }
+
+        .next .switch {
+            background: rgba(255, 255, 255, .3)
+        }
+
+        .next .switch[aria-checked="true"] {
+            background: #fff
+        }
+
+        .next .switch[aria-checked="true"]::after {
+            background: var(--brand)
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 14px
+        }
+
+        .days button {
+            min-height: 52px;
+            border-radius: 14px;
+            border: 1.5px solid var(--line);
+            background: var(--surface2);
+            font-weight: 600;
+            font-size: 15px
+        }
+
+        .days button.on {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: var(--on-brand)
+        }
+
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 14px
+        }
+
+        .stepper label {
+            font-weight: 500
+        }
+
+        .step-ctl {
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .step-ctl button {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            border: 1.5px solid var(--line);
+            background: var(--surface2);
+            display: grid;
+            place-items: center
+        }
+
+        .step-ctl output {
+            min-width: 64px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums
+        }
+
+        .time-in {
+            display: block;
+            width: 100%;
+            margin-top: 6px;
+            min-height: 68px;
+            text-align: center;
+            font: 700 38px var(--font);
+            font-variant-numeric: tabular-nums;
+            color: var(--ink);
+            background: var(--surface2);
+            border: 1.5px solid var(--line);
+            border-radius: 18px
+        }
+
+        .field-l {
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 2px
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--ink2);
+            margin-top: 8px
+        }
+
+        .opt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 0
+        }
+
+        .opt+.opt {
+            border-top: 1px solid var(--line)
+        }
+
+        .opt small {
+            display: block;
+            color: var(--ink2);
+            font-size: 13px;
+            line-height: 1.35
+        }
+
+        .up {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        .up li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 14.5px
+        }
+
+        .up li+li {
+            border-top: 1px solid var(--line)
+        }
+
+        .up small {
+            color: var(--ink2)
+        }
+
+        /* ---------- alerts ---------- */
+        .th {
+            padding: 12px 0
+        }
+
+        .th+.th {
+            border-top: 1px solid var(--line)
+        }
+
+        .th-h {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14.5px;
+            font-weight: 500
+        }
+
+        .th-h output {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 32px;
+            accent-color: var(--brand);
+            margin: 2px 0 0
+        }
+
+        .demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+
+        .demo .btn {
+            min-height: 46px;
+            font-size: 14px;
+            border-radius: 13px
+        }
+
+        /* ---------- technician ---------- */
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .chip {
+            min-height: 44px;
+            padding: 0 15px;
+            border-radius: 99px;
+            border: 1.5px solid var(--line);
+            background: var(--surface2);
+            font-size: 14.5px;
+            font-weight: 500
+        }
+
+        .chip.on {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: var(--on-brand)
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 84px;
+            resize: none;
+            border-radius: 16px;
+            border: 1.5px solid var(--line);
+            background: var(--surface2);
+            color: var(--ink);
+            font: inherit;
+            padding: 12px 14px;
+            margin-top: 6px
+        }
+
+        textarea::placeholder {
+            color: var(--ink2)
+        }
+
+        .dev {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        .dev li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            font-size: 14.5px
+        }
+
+        .dev li+li {
+            border-top: 1px solid var(--line)
+        }
+
+        .dev .st {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13.5px;
+            color: var(--ok)
+        }
+
+        .dev .st.w {
+            color: var(--warn)
+        }
+
+        .tl {
+            list-style: none;
+            margin: 6px 0 4px;
+            padding: 0
+        }
+
+        .tl li {
+            position: relative;
+            display: flex;
+            gap: 14px;
+            padding: 0 0 20px;
+            color: var(--ink2)
+        }
+
+        .tl li:last-child {
+            padding-bottom: 0
+        }
+
+        .tl li:not(:last-child)::before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            top: 28px;
+            bottom: 2px;
+            width: 2px;
+            background: var(--line)
+        }
+
+        .tl .k {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            flex: none;
+            display: grid;
+            place-items: center;
+            background: var(--surface2);
+            border: 2px solid var(--line);
+            font-size: 0
+        }
+
+        .tl li.done {
+            color: var(--ink)
+        }
+
+        .tl li.done .k {
+            background: var(--brand);
+            border-color: var(--brand)
+        }
+
+        .tl li.done .k::before {
+            content: "✓";
+            font-size: 14px;
+            color: var(--on-brand)
+        }
+
+        .tl li.done:not(:last-child)::before {
+            background: var(--brand)
+        }
+
+        .tl li.cur {
+            color: var(--ink);
+            font-weight: 600
+        }
+
+        .tl li.cur .k {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 4px var(--brand-soft)
+        }
+
+        .tech {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            border-radius: 16px;
+            background: var(--surface2);
+            margin-top: 14px
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: var(--on-brand);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 18px
+        }
+
+        .stack {
+            display: grid;
+            gap: 10px
+        }
+
+        /* ---------- nav / sheet / toast ---------- */
+        .nav {
+            flex: none;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            background: var(--surface);
+            border-top: 1px solid var(--line);
+            padding: 6px 4px 8px
+        }
+
+        .nav button {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            border: 0;
+            background: transparent;
+            min-height: 58px;
+            color: var(--ink2);
+            font-size: 12px;
+            font-weight: 500
+        }
+
+        .nav .pl {
+            width: 56px;
+            height: 30px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            transition: background .2s
+        }
+
+        .nav button[aria-current="true"] {
+            color: var(--ink);
+            font-weight: 600
+        }
+
+        .nav button[aria-current="true"] .pl {
+            background: var(--brand-soft);
+            color: var(--brand)
+        }
+
+        .badge {
+            position: absolute;
+            top: 1px;
+            left: calc(50% + 6px);
+            min-width: 19px;
+            height: 19px;
+            padding: 0 5px;
+            border-radius: 99px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            line-height: 1
+        }
+
+        .sheet-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            visibility: hidden;
+            transition: visibility 0s .28s
+        }
+
+        .sheet-wrap.open {
+            visibility: visible;
+            transition-delay: 0s
+        }
+
+        .scrim {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 20, 28, .55);
+            opacity: 0;
+            transition: opacity .25s
+        }
+
+        .open .scrim {
+            opacity: 1
+        }
+
+        .sheet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--surface);
+            border-radius: 28px 28px 0 0;
+            padding: 10px 18px 22px;
+            transform: translateY(100%);
+            transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+            max-height: 92%;
+            overflow: auto
+        }
+
+        .open .sheet {
+            transform: none
+        }
+
+        .grab {
+            width: 40px;
+            height: 5px;
+            border-radius: 9px;
+            background: var(--line);
+            margin: 0 auto 14px
+        }
+
+        .sheet h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px
+        }
+
+        .facts {
+            list-style: none;
+            margin: 0 0 16px;
+            padding: 0;
+            display: grid;
+            gap: 10px
+        }
+
+        .facts li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 15px
+        }
+
+        .facts .i {
+            color: var(--brand);
+            margin-top: 1px
+        }
+
+        .facts li.w {
+            color: var(--warn)
+        }
+
+        .facts li.w .i {
+            color: var(--warn)
+        }
+
+        .cam {
+            border-radius: 20px;
+            overflow: hidden;
+            background: #06202B;
+            position: relative;
+            margin-bottom: 12px
+        }
+
+        .cam svg {
+            display: block;
+            width: 100%
+        }
+
+        .toast {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 88px;
+            z-index: 30;
+            background: #0F2A37;
+            color: #fff;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-size: 14.5px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity .2s, transform .2s
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none
+        }
+
+        :root[data-theme="dark"] .toast {
+            background: #E7F3F6;
+            color: #0A1E29
+        }
+
+        @media (max-width:980px) {
+            .side {
+                display: none
+            }
+        }
+
+        @media (max-width:560px) {
+            html {
+                background: var(--bg)
+            }
+
+            .stage {
+                padding: 0;
+                gap: 0;
+                display: block
+            }
+
+            .phone {
+                width: 100%;
+                height: 100%;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none
+            }
+
+            .statusbar {
+                display: none
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
+            </symbol>
+            <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+            </symbol>
+            <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </symbol>
+            <symbol id="i-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </symbol>
+            <symbol id="i-droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
+            </symbol>
+            <symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5L14.2 10.4a2 2 0 0 1-.2-.9V2M8.5 2h7M7 16h10" />
+            </symbol>
+            <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12.8 2.2a2 2 0 0 0-1.6 0L2.6 6.1a1 1 0 0 0 0 1.8l8.6 3.9a2 2 0 0 0 1.6 0l8.6-3.9a1 1 0 0 0 0-1.8zM2 12l8.6 3.9a2 2 0 0 0 1.6 0L21 12M2 17l8.6 3.9a2 2 0 0 0 1.6 0L21 17" />
+            </symbol>
+            <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z" />
+                <circle cx="12" cy="13" r="3" />
+            </symbol>
+            <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />
+            </symbol>
+            <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+            </symbol>
+            <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3M12 9v4M12 17h.01" />
+            </symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5v14" />
+            </symbol>
+            <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14" />
+            </symbol>
+            <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </symbol>
+            <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z" />
+            </symbol>
+            <symbol id="i-stop" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="5" width="14" height="14" rx="3" />
+            </symbol>
+            <symbol id="i-drain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12M8 11l4 4 4-4M5 21h14" />
+            </symbol>
+            <symbol id="i-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6" />
+            </symbol>
+            <symbol id="i-suck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 9-6-6-6 6M12 3v14M5 21h14" />
+            </symbol>
+            <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2h4M12 14l3-3" />
+                <circle cx="12" cy="14" r="8" />
+            </symbol>
+            <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m4.9 4.9 14.2 14.2" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="stage">
+        <aside class="side">
+            <div class="mark"><span class="logo"><svg class="i">
+                        <use href="#i-droplet" />
+                    </svg></span>ถังใส</div>
+            <h1>ต้นแบบแอปควบคุมฝาล้างถังน้ำอัตโนมัติ</h1>
+            <p>กดได้จริงทุกหน้า ตัวเลขเป็นข้อมูลจำลองที่ขยับสดตลอดเวลา</p>
+            <nav class="side-nav" id="side-nav" aria-label="ไปยังหน้าจอ">
+                <button data-goto="home"><svg class="i s">
+                        <use href="#i-sliders" />
+                    </svg>ควบคุม</button>
+                <button data-goto="monitor"><svg class="i s">
+                        <use href="#i-activity" />
+                    </svg>ติดตามสด</button>
+                <button data-goto="schedule"><svg class="i s">
+                        <use href="#i-clock" />
+                    </svg>ตั้งเวลา</button>
+                <button data-goto="alerts"><svg class="i s">
+                        <use href="#i-bell" />
+                    </svg>แจ้งเตือน</button>
+                <button data-goto="tech"><svg class="i s">
+                        <use href="#i-wrench" />
+                    </svg>เรียกช่าง</button>
+            </nav>
+            <small>ลองกด “เริ่มล้างอัตโนมัติ” ที่หน้าควบคุม ระบบจะเร่งเวลาให้เห็นครบ 5 ขั้นตอนภายในประมาณ 22
+                วินาที</small>
+        </aside>
+
+        <main class="phone" id="phone">
+            <div class="statusbar" aria-hidden="true"><span id="clock">9:41</span><span>5G ▮▮▮▯</span></div>
+
+            <div class="viewport">
+
+                <!-- ================= HOME ================= -->
+                <section class="screen on" data-screen="home" aria-label="ควบคุม">
+                    <header class="top">
+                        <div class="brand"><span class="logo"><svg class="i s">
+                                    <use href="#i-droplet" />
+                                </svg></span>ถังใส</div>
+                        <span class="pill"><i class="dot pulse"></i>ออนไลน์</span>
+                    </header>
+
+                    <section class="hero" id="hero" data-st="should" aria-label="สถานะถังน้ำ">
+                        <div class="hero-top"><span>ถังน้ำบ้านสวน · 2,000 ลิตร</span><span class="tag"
+                                id="h-tag">ควรล้าง</span></div>
+                        <div class="hero-main">
+                            <svg class="tank" id="tank" viewBox="0 0 200 232" role="img"
+                                aria-label="ภาพตัดถังน้ำพร้อมฝาล้างอัตโนมัติ แสดงระดับน้ำและตะกอนแบบสด" data-step="-1">
+                                <defs>
+                                    <clipPath id="tclip">
+                                        <rect x="49" y="27" width="102" height="174" rx="11" />
+                                    </clipPath>
+                                    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0" stop-color="#5CCDE0" stop-opacity=".95" />
+                                        <stop offset="1" stop-color="#2A93AC" stop-opacity=".9" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- hoses on lid -->
+                                <path d="M62 16V6H26" fill="none" stroke="#63D07E" stroke-width="5"
+                                    stroke-linecap="round" />
+                                <path d="M138 16V6H174" fill="none" stroke="#5CCDE0" stroke-width="5"
+                                    stroke-linecap="round" />
+                                <!-- tank shell -->
+                                <rect x="48" y="26" width="104" height="176" rx="12" fill="rgba(255,255,255,.05)"
+                                    stroke="#9DC0CB" stroke-opacity=".7" stroke-width="2" />
+                                <g clip-path="url(#tclip)">
+                                    <g id="wLevel" transform="translate(0 82)">
+                                        <g class="wave">
+                                            <path id="wPath" fill="url(#wg)" />
+                                            <path id="wTurb" fill="#B9822F" opacity="0" />
+                                        </g>
+                                    </g>
+                                    <g id="sedG" transform="translate(0 170)">
+                                        <path id="sPath" fill="#B9822F" />
+                                    </g>
+                                    <g id="sedDots" fill="#8A5F1C" opacity=".55">
+                                        <circle cx="72" cy="188" r="3" />
+                                        <circle cx="96" cy="193" r="2.4" />
+                                        <circle cx="121" cy="187" r="3.2" />
+                                        <circle cx="138" cy="194" r="2.2" />
+                                    </g>
+                                </g>
+                                <!-- level ticks -->
+                                <g stroke="#9DC0CB" stroke-opacity=".55" stroke-width="1.5">
+                                    <path d="M152 159H158M152 118H158M152 77H158" />
+                                </g>
+                                <!-- lid -->
+                                <rect x="40" y="14" width="120" height="13" rx="6.5" fill="#CFE3E9" />
+                                <circle cx="66" cy="20.5" r="4.2" fill="#0D2B3A" />
+                                <circle cx="66" cy="20.5" r="1.6" fill="#5CCDE0" />
+                                <!-- nozzle pipe + head -->
+                                <line x1="100" y1="27" x2="100" y2="76" stroke="#D9EEF2" stroke-width="4"
+                                    stroke-linecap="round" />
+                                <g class="spray">
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(0 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(45 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(90 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(135 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(180 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(225 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(270 100 78)" />
+                                    <line x1="100" y1="63" x2="100" y2="44" transform="rotate(315 100 78)" />
+                                </g>
+                                <g class="nozzle">
+                                    <rect x="86" y="75.5" width="28" height="5" rx="2.5" fill="#EAF6F8" />
+                                    <circle cx="100" cy="78" r="4.5" fill="#EAF6F8" />
+                                </g>
+                                <!-- drain + suction lines -->
+                                <path class="flow drain" d="M66 202V222H22" />
+                                <path class="flow suck" d="M100 202V222H178" />
+                            </svg>
+                            <div class="hero-read">
+                                <div class="lbl">ความสะอาดของน้ำ</div>
+                                <div class="big"><span data-b="clean">54</span><small>%</small></div>
+                                <div class="verdict" id="h-verdict">น้ำเริ่มขุ่น ควรล้างเร็วๆ นี้</div>
+                                <div class="sub num">ความขุ่น <span data-b="turb"></span> NTU · <span
+                                        data-b="temp"></span>°C</div>
+                            </div>
+                        </div>
+                        <div class="hero-bars">
+                            <div class="hb" id="hb-level">
+                                <div class="hb-l"><svg class="i s">
+                                        <use href="#i-droplet" />
+                                    </svg>น้ำในถัง</div>
+                                <div class="hb-v"><span data-b="level"></span><small>%</small></div>
+                                <div class="bar"><i data-w="level" style="--c:var(--water-h)"></i></div>
+                            </div>
+                            <div class="hb" id="hb-sed">
+                                <div class="hb-l"><svg class="i s">
+                                        <use href="#i-layers" />
+                                    </svg>ตะกอน</div>
+                                <div class="hb-v"><span data-b="sediment"></span><small>%</small></div>
+                                <div class="bar"><i data-w="sediment" style="--c:var(--sed-h)"></i></div>
+                            </div>
+                            <div class="hb" id="hb-chem">
+                                <div class="hb-l"><svg class="i s">
+                                        <use href="#i-flask" />
+                                    </svg>น้ำยา</div>
+                                <div class="hb-v"><span data-b="chem"></span><small>%</small></div>
+                                <div class="bar"><i data-w="chem" style="--c:var(--chem-h)"></i></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="banner-slot"></div>
+
+                    <section class="card" aria-label="ล้างถังอัตโนมัติ">
+                        <div class="card-h">
+                            <h3>ล้างถังอัตโนมัติ</h3><span class="muted" id="act-state">พร้อมทำงาน</span>
+                        </div>
+                        <ol class="steps" id="steps"></ol>
+                        <p class="step-desc" id="step-desc">ใช้เวลาประมาณ 38 นาที และงดจ่ายน้ำระหว่างล้าง</p>
+                        <div class="prog" id="prog" hidden>
+                            <div class="bar big"><i id="prog-fill" style="--c:var(--brand)"></i></div>
+                            <div class="prog-meta num"><span id="prog-pct">0%</span><span id="prog-eta"></span></div>
+                        </div>
+                        <button class="btn" id="btn-start"><svg class="i">
+                                <use href="#i-play" />
+                            </svg>เริ่มล้างอัตโนมัติ</button>
+                        <button class="btn danger" id="btn-stop" hidden><svg class="i">
+                                <use href="#i-stop" />
+                            </svg>หยุดฉุกเฉิน</button>
+                    </section>
+
+                    <button class="row-link" data-goto="schedule">
+                        <span class="ic"><svg class="i">
+                                <use href="#i-clock" />
+                            </svg></span>
+                        <div><small>ล้างอัตโนมัติรอบถัดไป</small><b id="home-next">—</b></div>
+                        <svg class="i s muted">
+                            <use href="#i-chev" />
+                        </svg>
+                    </button>
+
+                    <section class="card" aria-label="ควบคุมเอง">
+                        <div class="card-h">
+                            <h3>ควบคุมเอง</h3><span class="muted">แตะเพื่อเปิด/ปิดทีละขั้น</span>
+                        </div>
+                        <div class="tiles" id="tiles"></div>
+                    </section>
+                </section>
+
+                <!-- ================= MONITOR ================= -->
+                <section class="screen" data-screen="monitor" aria-label="ติดตามสด">
+                    <header class="top">
+                        <h2>ติดตามสด</h2><span class="pill"><i class="dot pulse"></i>อัปเดตทุกวินาที</span>
+                    </header>
+
+                    <section class="card gauge-card" id="gauge-card" data-st="should">
+                        <div class="gauge-wrap">
+                            <svg class="gauge" viewBox="0 0 200 112" aria-hidden="true">
+                                <path class="g-track" d="M20 100A80 80 0 0 1 180 100" pathLength="100" />
+                                <path class="g-fill" id="g-fill" d="M20 100A80 80 0 0 1 180 100" pathLength="100"
+                                    style="stroke-dasharray:0 100" />
+                            </svg>
+                            <div class="g-read">
+                                <div class="big"><span data-b="clean">54</span><small>%</small></div>
+                                <span>ความสะอาดของน้ำ</span>
+                            </div>
+                        </div>
+                        <p class="g-verdict" id="g-verdict">ควรล้างเร็วๆ นี้</p>
+                        <div class="mini3">
+                            <div><b><span data-b="turb"></span></b><small>ความขุ่น (NTU)</small></div>
+                            <div><b><span data-b="temp"></span></b><small>อุณหภูมิ (°C)</small></div>
+                            <div><b><span data-b="ph"></span></b><small>ค่า pH</small></div>
+                        </div>
+                    </section>
+
+                    <section class="card" style="padding-top:4px;padding-bottom:4px">
+                        <div class="m-row">
+                            <span class="m-ic" style="--c:var(--water)"><svg class="i">
+                                    <use href="#i-droplet" />
+                                </svg></span>
+                            <div class="m-b">
+                                <div class="m-t">ระดับน้ำ</div>
+                                <div class="m-s num"><span data-b="liters"></span> จาก 2,000 ลิตร</div>
+                                <div class="bar"><i data-w="level" style="--c:var(--water)"></i></div>
+                            </div>
+                            <div class="m-v"><span data-b="level"></span><small>%</small></div>
+                        </div>
+                        <div class="m-row">
+                            <span class="m-ic" style="--c:var(--sed)"><svg class="i">
+                                    <use href="#i-layers" />
+                                </svg></span>
+                            <div class="m-b">
+                                <div class="m-t">ตะกอนก้นถัง</div>
+                                <div class="m-s num">หนาประมาณ <span data-b="thick"></span> ซม. · เตือนเมื่อเกิน <span
+                                        data-b="tsed"></span>%</div>
+                                <div class="bar"><i data-w="sediment" style="--c:var(--sed)"></i></div>
+                            </div>
+                            <div class="m-v"><span data-b="sediment"></span><small>%</small></div>
+                        </div>
+                        <div class="m-row">
+                            <span class="m-ic" style="--c:var(--chem)"><svg class="i">
+                                    <use href="#i-flask" />
+                                </svg></span>
+                            <div class="m-b">
+                                <div class="m-t">น้ำยาล้างถัง</div>
+                                <div class="m-s num">เหลือ <span data-b="chemL"></span> จาก 5 ลิตร · ล้างได้อีก <span
+                                        data-b="washes"></span> รอบ</div>
+                                <div class="bar"><i data-w="chem" style="--c:var(--chem)"></i></div>
+                            </div>
+                            <div class="m-v"><span data-b="chem"></span><small>%</small></div>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>แนวโน้มล่าสุด</h3>
+                        </div>
+                        <div class="seg" id="ch-seg" role="group" aria-label="เลือกข้อมูลกราฟ">
+                            <button class="on" data-m="clean">ความสะอาด</button><button
+                                data-m="level">ระดับน้ำ</button><button data-m="sediment">ตะกอน</button>
+                        </div>
+                        <svg class="chart" viewBox="0 0 320 150" role="img" aria-label="กราฟแนวโน้มค่าที่เลือก">
+                            <g id="ch-grid"></g>
+                            <path id="ch-area" opacity=".14" />
+                            <path id="ch-line" fill="none" stroke-width="2.6" stroke-linejoin="round"
+                                stroke-linecap="round" />
+                            <line id="ch-th" stroke-dasharray="4 4" stroke-width="1.4" opacity="0" />
+                            <text id="ch-thl" x="312" text-anchor="end" opacity="0"></text>
+                            <circle id="ch-dot" r="4.5" />
+                        </svg>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>ประวัติการล้าง</h3>
+                        </div>
+                        <ul class="log" id="log"></ul>
+                    </section>
+                </section>
+
+                <!-- ================= SCHEDULE ================= -->
+                <section class="screen" data-screen="schedule" aria-label="ตั้งเวลา">
+                    <header class="top">
+                        <h2>ตั้งเวลาล้างอัตโนมัติ</h2>
+                    </header>
+
+                    <section class="next" aria-live="polite">
+                        <div class="next-row">
+                            <div>
+                                <small>รอบถัดไป</small>
+                                <div class="when" id="sc-when">—</div>
+                                <div class="in" id="sc-in"></div>
+                            </div>
+                            <button class="switch" id="sc-enabled" role="switch" aria-checked="true"
+                                aria-label="เปิดใช้ตารางล้างอัตโนมัติ"></button>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="field-l">ล้างทุกกี่วัน</div>
+                        <div class="seg" id="sc-mode" style="margin-top:8px" role="group" aria-label="รูปแบบการทำซ้ำ">
+                            <button class="on" data-mode="weekly">ตามวันในสัปดาห์</button><button
+                                data-mode="interval">ทุกๆ กี่วัน</button>
+                        </div>
+                        <div id="sc-weekly">
+                            <div class="days" id="sc-days" role="group" aria-label="เลือกวัน">
+                                <button data-d="1">จ</button><button data-d="2">อ</button><button
+                                    data-d="3">พ</button><button data-d="4">พฤ</button><button
+                                    data-d="5">ศ</button><button data-d="6">ส</button><button data-d="0">อา</button>
+                            </div>
+                            <div class="stepper"><label>ทำซ้ำทุก</label>
+                                <div class="step-ctl"><button data-w="-1" aria-label="ลดจำนวนสัปดาห์"><svg class="i s">
+                                            <use href="#i-minus" />
+                                        </svg></button><output id="sc-weeks" class="num">1</output><button data-w="1"
+                                        aria-label="เพิ่มจำนวนสัปดาห์"><svg class="i s">
+                                            <use href="#i-plus" />
+                                        </svg></button></div>
+                                <span class="muted">สัปดาห์</span>
+                            </div>
+                        </div>
+                        <div id="sc-interval" hidden>
+                            <div class="stepper"><label>ล้างทุก</label>
+                                <div class="step-ctl"><button data-e="-1" aria-label="ลดจำนวนวัน"><svg class="i s">
+                                            <use href="#i-minus" />
+                                        </svg></button><output id="sc-every" class="num">3</output><button data-e="1"
+                                        aria-label="เพิ่มจำนวนวัน"><svg class="i s">
+                                            <use href="#i-plus" />
+                                        </svg></button></div>
+                                <span class="muted">วัน</span>
+                            </div>
+                            <p class="hint">นับจากวันนี้ แล้วล้างซ้ำตามจำนวนวันที่เลือก</p>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <label class="field-l" for="sc-time">เวลาเริ่มล้าง</label>
+                        <input class="time-in" type="time" id="sc-time" value="02:00">
+                        <p class="hint">แนะนำเวลากลางคืน เพราะระบบงดจ่ายน้ำประมาณ 40 นาที</p>
+                    </section>
+
+                    <section class="card" style="padding-top:4px;padding-bottom:4px">
+                        <div class="opt">
+                            <div><b>ฉีดน้ำยาฆ่าเชื้อ</b><small>ปิดได้ถ้าต้องการล้างด้วยน้ำเปล่า</small></div><button
+                                class="switch" role="switch" aria-checked="true" data-sc="chem"
+                                aria-label="ฉีดน้ำยาฆ่าเชื้อ"></button>
+                        </div>
+                        <div class="opt">
+                            <div><b>เตือนก่อนเริ่ม 30 นาที</b><small>ส่งแจ้งเตือนให้เก็บน้ำสำรองไว้ใช้</small></div>
+                            <button class="switch" role="switch" aria-checked="true" data-sc="notify"
+                                aria-label="เตือนก่อนเริ่ม"></button>
+                        </div>
+                        <div class="opt">
+                            <div><b>ข้ามรอบถ้าน้ำยาไม่พอ</b><small>แล้วแจ้งให้เติมน้ำยาแทน</small></div><button
+                                class="switch" role="switch" aria-checked="false" data-sc="skip"
+                                aria-label="ข้ามรอบถ้าน้ำยาไม่พอ"></button>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>4 รอบถัดไป</h3>
+                        </div>
+                        <ul class="up" id="sc-up"></ul>
+                    </section>
+
+                    <button class="btn" id="sc-save"><svg class="i">
+                            <use href="#i-check" />
+                        </svg>บันทึกตารางเวลา</button>
+                </section>
+
+                <!-- ================= ALERTS ================= -->
+                <section class="screen" data-screen="alerts" aria-label="แจ้งเตือน">
+                    <header class="top">
+                        <h2>แจ้งเตือน</h2>
+                    </header>
+                    <div id="al-list"></div>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>เกณฑ์แจ้งเตือน</h3><span class="muted">ปรับได้เอง</span>
+                        </div>
+                        <div class="th">
+                            <div class="th-h"><label for="th-chem">น้ำยาเหลือต่ำกว่า</label><output
+                                    id="o-chem">20%</output></div><input type="range" id="th-chem" min="5" max="50"
+                                step="1" value="20">
+                        </div>
+                        <div class="th">
+                            <div class="th-h"><label for="th-sed">ตะกอนสูงกว่า</label><output id="o-sed">60%</output>
+                            </div><input type="range" id="th-sed" min="30" max="90" step="1" value="60">
+                        </div>
+                        <div class="th">
+                            <div class="th-h"><label for="th-level">ระดับน้ำต่ำกว่า</label><output
+                                    id="o-level">25%</output></div><input type="range" id="th-level" min="10" max="50"
+                                step="1" value="25">
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>ก่อนหน้านี้</h3>
+                        </div>
+                        <ul class="log" id="al-hist">
+                            <li>
+                                <div>ล้างอัตโนมัติเสร็จ<small>14 ก.ย. 02:38</small></div><span class="r">สะอาด
+                                    97%</span>
+                            </li>
+                            <li>
+                                <div>เติมน้ำยาแล้ว<small>9 ก.ย. 18:12 · จากเดิม 17%</small></div><span
+                                    class="r">เต็มถัง</span>
+                            </li>
+                            <li>
+                                <div>ตะกอนสูง 71% แล้วล้างอัตโนมัติ<small>7 ก.ย. 02:00</small></div><span
+                                    class="r">สะอาด 96%</span>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-h">
+                            <h3>ทดลองสถานการณ์</h3><span class="muted">สำหรับสาธิต</span>
+                        </div>
+                        <div class="demo">
+                            <button class="btn soft" data-sim="chem">น้ำยาใกล้หมด</button>
+                            <button class="btn soft" data-sim="sed">ตะกอนเยอะ</button>
+                            <button class="btn soft" data-sim="level">น้ำในถังต่ำ</button>
+                            <button class="btn ghost" data-sim="ok">ค่าปกติ</button>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- ================= TECH ================= -->
+                <section class="screen" data-screen="tech" aria-label="เรียกช่าง">
+                    <header class="top">
+                        <h2>เรียกช่าง</h2>
+                    </header>
+
+                    <div id="tk-form">
+                        <section class="card">
+                            <div class="card-h">
+                                <h3>พบปัญหาอะไร</h3><span class="muted">เลือกได้หลายข้อ</span>
+                            </div>
+                            <div class="chips" id="tk-issues">
+                                <button class="chip" data-v="ปั๊มไม่ทำงาน">ปั๊มไม่ทำงาน</button>
+                                <button class="chip" data-v="หัวฉีดอุดตัน">หัวฉีดอุดตัน</button>
+                                <button class="chip" data-v="กล้องมองไม่เห็น">กล้องมองไม่เห็น</button>
+                                <button class="chip" data-v="น้ำรั่ว">น้ำรั่ว</button>
+                                <button class="chip" data-v="ฝาไม่ปิดสนิท">ฝาไม่ปิดสนิท</button>
+                                <button class="chip" data-v="ดูดตะกอนไม่ออก">ดูดตะกอนไม่ออก</button>
+                                <button class="chip" data-v="อื่นๆ">อื่นๆ</button>
+                            </div>
+                            <textarea id="tk-note"
+                                placeholder="เล่าอาการเพิ่มเติม เช่น เกิดขึ้นตอนไหน ได้ยินเสียงอะไร"></textarea>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-h">
+                                <h3>ต้องการให้ช่างมาเมื่อไหร่</h3>
+                            </div>
+                            <div class="seg" id="tk-urg" role="group" aria-label="ความเร่งด่วน">
+                                <button class="on" data-u="now">ด่วน วันนี้</button><button
+                                    data-u="later">นัดล่วงหน้า</button>
+                            </div>
+                            <div class="chips" id="tk-when" style="margin-top:12px" hidden>
+                                <button class="chip on" data-v="พรุ่งนี้ เช้า">พรุ่งนี้ เช้า</button>
+                                <button class="chip" data-v="พรุ่งนี้ บ่าย">พรุ่งนี้ บ่าย</button>
+                                <button class="chip" data-v="มะรืนนี้">มะรืนนี้</button>
+                            </div>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-h">
+                                <h3>สถานะอุปกรณ์ตอนนี้</h3><span class="muted">ช่างจะเห็นข้อมูลนี้</span>
+                            </div>
+                            <ul class="dev" id="tk-dev"></ul>
+                        </section>
+
+                        <div class="stack">
+                            <button class="btn" id="tk-send"><svg class="i">
+                                    <use href="#i-wrench" />
+                                </svg><span id="tk-send-l">เรียกช่างทันที</span></button>
+                            <button class="btn ghost" id="tk-call"><svg class="i">
+                                    <use href="#i-phone" />
+                                </svg>โทรหาศูนย์บริการ 24 ชั่วโมง</button>
+                        </div>
+                    </div>
+
+                    <div id="tk-track" hidden>
+                        <section class="card">
+                            <div class="card-h">
+                                <h3 id="tk-title">ส่งคำขอแล้ว</h3><span class="muted" id="tk-eta"></span>
+                            </div>
+                            <ol class="tl" id="tk-tl"></ol>
+                            <div class="tech" id="tk-person" hidden>
+                                <span class="avatar">ว</span>
+                                <div style="flex:1;min-width:0"><b>ช่างวิชัย · ช่างระบบน้ำ</b><small class="muted"
+                                        style="display:block;font-size:13px">คะแนน 4.9 จาก 312 งาน</small></div>
+                                <button class="btn sm soft" id="tk-callp" aria-label="โทรหาช่าง"><svg class="i s">
+                                        <use href="#i-phone" />
+                                    </svg>โทร</button>
+                            </div>
+                        </section>
+                        <section class="card">
+                            <div class="card-h">
+                                <h3>ข้อมูลที่ส่งให้ช่างแล้ว</h3>
+                            </div>
+                            <p class="muted num" style="font-size:14px" id="tk-att"></p>
+                            <p class="muted" style="font-size:14px;margin-top:6px" id="tk-sum"></p>
+                        </section>
+                        <button class="btn danger" id="tk-cancel"><svg class="i">
+                                <use href="#i-ban" />
+                            </svg>ยกเลิกคำขอ</button>
+                    </div>
+                </section>
+
+            </div>
+
+            <nav class="nav" id="nav" aria-label="เมนูหลัก">
+                <button data-goto="home" aria-current="true"><span class="pl"><svg class="i">
+                            <use href="#i-sliders" />
+                        </svg></span>ควบคุม</button>
+                <button data-goto="monitor"><span class="pl"><svg class="i">
+                            <use href="#i-activity" />
+                        </svg></span>ติดตาม</button>
+                <button data-goto="schedule"><span class="pl"><svg class="i">
+                            <use href="#i-clock" />
+                        </svg></span>ตั้งเวลา</button>
+                <button data-goto="alerts"><span class="pl"><svg class="i">
+                            <use href="#i-bell" />
+                        </svg></span>แจ้งเตือน<span class="badge" id="badge" hidden>0</span></button>
+                <button data-goto="tech"><span class="pl"><svg class="i">
+                            <use href="#i-wrench" />
+                        </svg></span>เรียกช่าง</button>
+            </nav>
+
+            <div class="sheet-wrap" id="sheet" aria-hidden="true">
+                <div class="scrim" id="scrim"></div>
+                <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+                    <div class="grab"></div>
+                    <div id="sheet-body"></div>
+                </div>
+            </div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <script>
+        (() => {
+            'use strict';
+            const $ = (s, r = document) => r.querySelector(s);
+            const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+            const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+            const rnd = () => Math.random() - 0.5;
+            const fmt = n => Math.round(n).toLocaleString('th-TH');
+            const DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const pad = n => String(n).padStart(2, '0');
+            const fmtDate = d => `${DAYS[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+
+            /* ---------- state ---------- */
+            const S = {clean: 55, level: 72, sediment: 68, chem: 18, turb: 46, temp: 29.4, ph: 7.2, running: false, step: -1, stepT: 0, manual: -1, refill: false};
+            const T = {chem: 20, sed: 60, level: 25, levelHigh: 92, turb: 60};
+            const SC = {enabled: true, mode: 'weekly', days: [1, 4], weeks: 1, every: 3, time: '02:00', chem: true, notify: true, skip: false};
+            const LOG = [{t: '14 ก.ย. 02:00', d: '38 นาที · ตามตาราง', c: 97}, {t: '7 ก.ย. 02:00', d: '37 นาที · ตามตาราง', c: 96}, {t: '31 ส.ค. 02:00', d: '39 นาที · ตามตาราง', c: 95}];
+            const STEPS = [
+                {name: 'ระบายน้ำ', icon: 'drain', sec: 5, desc: 'กำลังระบายน้ำเก่าออกทางท่อระบาย', tg: {level: 6, sediment: 64, turb: 58}},
+                {name: 'ฉีดล้าง', icon: 'spin', sec: 5, desc: 'หัวฉีดหมุน 360° กำลังล้างผนังและก้นถัง', tg: {level: 12, sediment: 30, turb: 85}},
+                {name: 'ฉีดน้ำยา', icon: 'flask', sec: 4, desc: 'กำลังฉีดน้ำยาฆ่าเชื้อทั่วผนังถัง', tg: {level: 14, sediment: 26, turb: 70}},
+                {name: 'ล้างสะอาด', icon: 'droplet', sec: 4, desc: 'กำลังล้างคราบน้ำยาออกด้วยน้ำสะอาด', tg: {level: 28, sediment: 20, turb: 25}},
+                {name: 'ดูดออก', icon: 'suck', sec: 4, desc: 'กำลังดูดตะกอนและน้ำเสียออกจากก้นถัง', tg: {level: 8, sediment: 2, turb: 5}}
+            ];
+            const TOTAL = STEPS.reduce((a, s) => a + s.sec, 0);
+            const REAL_MIN = 38;
+            const calcClean = () => clamp(100 - S.sediment * 0.42 - S.turb * 0.35);
+            const stOf = c => c >= 85 ? {k: 'great', tag: 'สะอาดมาก', v: 'น้ำใสสะอาด พร้อมใช้'}
+                : c >= 65 ? {k: 'ok', tag: 'ปกติ', v: 'คุณภาพน้ำอยู่ในเกณฑ์ดี'}
+                    : c >= 40 ? {k: 'should', tag: 'ควรล้าง', v: 'น้ำเริ่มขุ่น ควรล้างเร็วๆ นี้'}
+                        : {k: 'bad', tag: 'ล้างด่วน', v: 'น้ำขุ่นมาก ควรล้างทันที'};
+
+            /* ---------- toast + sheet ---------- */
+            let toastT;
+            function toast(msg) {const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2600);}
+            const sheet = $('#sheet');
+            function openSheet(html) {$('#sheet-body').innerHTML = html; sheet.classList.add('open'); sheet.setAttribute('aria-hidden', 'false');}
+            function closeSheet() {sheet.classList.remove('open'); sheet.setAttribute('aria-hidden', 'true');}
+            $('#scrim').addEventListener('click', closeSheet);
+            document.addEventListener('keydown', e => {if (e.key === 'Escape') closeSheet();});
+
+            /* ---------- navigation ---------- */
+            function goto(name) {
+                $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === name));
+                $$('#nav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.goto === name)));
+                $$('#side-nav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.goto === name)));
+                const sc = $(`.screen[data-screen="${name}"]`); if (sc) sc.scrollTop = 0;
+                closeSheet();
+            }
+            document.addEventListener('click', e => {
+                const g = e.target.closest('[data-goto]'); if (g) {goto(g.dataset.goto); return;}
+                const a = e.target.closest('[data-act]'); if (a) {doAct(a.dataset.act);}
+            });
+
+            /* ---------- tank svg init ---------- */
+            (function initTank() {
+                let w = 'M20 0'; for (let i = 0; i < 9; i++) w += ' q7.5 -4 15 0 t15 0'; w += ' V210 H20 Z';
+                $('#wPath').setAttribute('d', w); $('#wTurb').setAttribute('d', w);
+                let s = 'M20 0'; for (let i = 0; i < 9; i++) s += ' q10 -4 20 0 t20 0'; s += ' V80 H20 Z';
+                $('#sPath').setAttribute('d', s);
+            })();
+
+            /* ---------- steps + tiles ---------- */
+            $('#steps').innerHTML = STEPS.map((s, i) => `<li data-i="${i}"><span class="n">${i + 1}</span>${s.name}</li>`).join('');
+            $('#tiles').innerHTML = STEPS.map((s, i) => `<button class="tile" data-tile="${i}" aria-pressed="false"><svg class="i"><use href="#i-${s.icon}"/></svg>${s.name}<small>ปิดอยู่</small></button>`).join('')
+                + `<button class="tile" data-cam="1"><svg class="i"><use href="#i-camera"/></svg>กล้องในถัง<small>ดูสด</small></button>`;
+            $('#tiles').addEventListener('click', e => {
+                const t = e.target.closest('.tile'); if (!t) return;
+                if (t.dataset.cam) {openCamera(); return;}
+                if (S.running) return;
+                const i = +t.dataset.tile; S.manual = S.manual === i ? -1 : i;
+                paint();
+            });
+
+            /* ---------- auto clean ---------- */
+            function openConfirm() {
+                const low = S.chem < 10;
+                openSheet(`<h3 id="sheet-title">เริ่มล้างถังอัตโนมัติ?</h3>
+  <ul class="facts">
+    <li><svg class="i"><use href="#i-timer"/></svg><span>ใช้เวลาประมาณ ${REAL_MIN} นาที</span></li>
+    <li><svg class="i"><use href="#i-droplet"/></svg><span>งดจ่ายน้ำจากถังระหว่างล้าง และเติมน้ำใหม่ให้เมื่อเสร็จ</span></li>
+    <li class="${low ? 'w' : ''}"><svg class="i"><use href="#i-${low ? 'alert' : 'flask'}"/></svg><span>${low ? `น้ำยาเหลือ ${Math.round(S.chem)}% ไม่พอสำหรับ 1 รอบ ควรเติมก่อนเริ่มล้าง` : `ใช้น้ำยาประมาณ 10% จากที่เหลือ ${Math.round(S.chem)}%`}</span></li>
+  </ul>
+  <div class="stack"><button class="btn" data-act="go"><svg class="i"><use href="#i-play"/></svg>เริ่มล้าง</button><button class="btn ghost" data-act="close">ไม่ใช่ตอนนี้</button></div>`);
+            }
+            function startClean() {
+                closeSheet(); S.manual = -1; S.running = true; S.step = 0; S.stepT = 0; S.refill = false;
+                goto('home'); toast('เริ่มล้างถังแล้ว');
+            }
+            function stopClean() {S.running = false; S.step = -1; S.stepT = 0; toast('หยุดระบบแล้ว ทุกปั๊มหยุดทำงาน'); paint();}
+            function finishClean() {
+                S.running = false; S.step = -1; S.stepT = 0; S.refill = true;
+                const c = Math.round(clamp(100 - 2 * 0.42 - 6 * 0.35));
+                const n = new Date();
+                LOG.unshift({t: `วันนี้ ${pad(n.getHours())}:${pad(n.getMinutes())}`, d: `${REAL_MIN} นาที · สั่งจากแอป`, c});
+                renderLog();
+                toast(`ล้างเสร็จแล้ว ความสะอาดน้ำ ${c}%`);
+            }
+            $('#btn-start').addEventListener('click', () => {if (S.manual >= 0) {S.manual = -1;} openConfirm();});
+            $('#btn-stop').addEventListener('click', stopClean);
+
+            function doAct(a) {
+                if (a === 'close') closeSheet();
+                else if (a === 'go') startClean();
+                else if (a === 'refill') {S.chem = 100; toast('อัปเดตแล้ว น้ำยาเต็มถัง');}
+                else if (a === 'clean') {if (S.running) {toast('กำลังล้างอยู่ ดูความคืบหน้าที่หน้าควบคุม'); goto('home');} else {goto('home'); openConfirm();} }
+                else if (a === 'tech') goto('tech');
+                paint();
+            }
+
+            /* ---------- camera ---------- */
+            function openCamera() {
+                openSheet(`<h3 id="sheet-title">กล้องในถัง</h3>
+  <div class="cam"><svg viewBox="0 0 320 190" aria-label="ภาพจำลองจากกล้องตรวจสอบในถัง">
+    <defs><radialGradient id="cg" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#2F8DA1"/><stop offset="1" stop-color="#06202B"/></radialGradient>
+    <filter id="cb"><feGaussianBlur stdDeviation="9"/></filter>
+    <radialGradient id="vg" cx=".5" cy=".5" r=".7"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></radialGradient></defs>
+    <rect width="320" height="190" fill="url(#cg)"/>
+    <g filter="url(#cb)" id="cam-blobs" fill="#B9822F">
+      <ellipse cx="70" cy="140" rx="46" ry="22"/><ellipse cx="160" cy="158" rx="70" ry="24"/><ellipse cx="255" cy="138" rx="42" ry="24"/>
+      <ellipse cx="110" cy="96" rx="30" ry="16"/><ellipse cx="220" cy="90" rx="26" ry="14"/>
+    </g>
+    <rect width="320" height="190" fill="url(#vg)"/>
+    <circle cx="20" cy="20" r="5" fill="#F07468"/><text x="32" y="25" fill="#fff" font-size="13" font-family="sans-serif" font-weight="700">LIVE</text>
+    <text x="304" y="25" fill="#fff" font-size="12" text-anchor="end" font-family="sans-serif" id="cam-time"></text>
+  </svg></div>
+  <p class="muted" style="font-size:13.5px;margin-bottom:14px">ภาพจำลอง ตะกอนในภาพเปลี่ยนตามค่าตะกอนจริงของถัง (<b class="num" style="color:var(--ink)" data-b="sediment"></b>%)</p>
+  <button class="btn ghost" data-act="close">ปิด</button>`);
+                paintCam();
+            }
+            function paintCam() {
+                const g = $('#cam-blobs'); if (g) g.style.opacity = (0.12 + S.sediment / 100 * 0.75).toFixed(2);
+                const t = $('#cam-time'); if (t) {const n = new Date(); t.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;}
+            }
+
+            /* ---------- alerts ---------- */
+            function activeAlerts() {
+                const a = [];
+                if (S.chem < T.chem) a.push({
+                    id: 'chem', sev: S.chem < 10 ? 'danger' : 'warn', icon: 'flask', title: 'น้ำยาเหลือน้อย',
+                    body: 'เหลือ <b><span data-b="chem"></span>%</b> ต่ำกว่าเกณฑ์ <span data-b="tchem"></span>% เติมน้ำยาก่อนล้างรอบถัดไป', act: 'refill', label: 'เติมน้ำยาแล้ว'
+                });
+                if (S.sediment > T.sed) a.push({
+                    id: 'sed', sev: S.sediment > 80 ? 'danger' : 'warn', icon: 'layers', title: 'ตะกอนในถังมากเกินไป',
+                    body: 'ตะกอนสะสม <b><span data-b="sediment"></span>%</b> เกินเกณฑ์ <span data-b="tsed"></span>% ควรล้างอัตโนมัติเพื่อดูดตะกอนออก', act: 'clean', label: 'ล้างอัตโนมัติเลย'
+                });
+                if (S.turb > T.turb) a.push({
+                    id: 'turb', sev: 'warn', icon: 'droplet', title: 'น้ำขุ่น',
+                    body: 'ความขุ่น <b><span data-b="turb"></span> NTU</b> สูงกว่าปกติ ล้างถังเพื่อให้น้ำใสอีกครั้ง', act: 'clean', label: 'ล้างอัตโนมัติเลย'
+                });
+                if (S.level > T.levelHigh) a.push({
+                    id: 'high', sev: 'warn', icon: 'droplet', title: 'น้ำในถังมากเกินไป',
+                    body: 'ระดับน้ำ <b><span data-b="level"></span>%</b> ใกล้ล้นถัง การล้างอัตโนมัติจะระบายน้ำออกให้', act: 'clean', label: 'ล้างอัตโนมัติเลย'
+                });
+                if (S.level < T.level) a.push({
+                    id: 'low', sev: 'danger', icon: 'alert', title: 'น้ำในถังต่ำ',
+                    body: 'ระดับน้ำเหลือ <b><span data-b="level"></span>%</b> ต่ำกว่าเกณฑ์ <span data-b="tlevel"></span>% ตรวจสอบวาล์วน้ำเข้า หรือเรียกช่าง', act: 'tech', label: 'เรียกช่างตรวจสอบ'
+                });
+                return a.sort((x, y) => (y.sev === 'danger') - (x.sev === 'danger'));
+            }
+            const alertHTML = a => `<article class="al ${a.sev}"><span class="al-ic"><svg class="i"><use href="#i-${a.icon}"/></svg></span><div class="al-b"><h4>${a.title}</h4><p>${a.body}</p><button class="btn sm ${a.sev === 'danger' ? 'danger-solid' : ''}" data-act="${a.act}">${a.label}</button></div></article>`;
+            let alertKey = '';
+            function renderAlerts() {
+                const list = activeAlerts();
+                const key = list.map(a => a.id + a.sev).join('|');
+                const badge = $('#badge'); badge.hidden = !list.length; badge.textContent = list.length;
+                if (key === alertKey) return;
+                alertKey = key;
+                $('#al-list').innerHTML = list.length ? list.map(alertHTML).join('') : `<div class="empty"><svg class="i"><use href="#i-check"/></svg><p><b>ทุกอย่างปกติ</b>ยังไม่มีเรื่องที่ต้องทำ</p></div>`;
+                const top = list[0];
+                $('#banner-slot').innerHTML = top ? `<div class="banner ${top.sev}"><span class="al-ic"><svg class="i"><use href="#i-${top.icon}"/></svg></span><div class="al-b"><h4>${top.title}</h4><p>${top.body}</p><button class="btn sm ${top.sev === 'danger' ? 'danger-solid' : ''}" data-act="${top.act}">${top.label}</button></div></div>` : '';
+            }
+            [['chem', '#th-chem', '#o-chem'], ['sed', '#th-sed', '#o-sed'], ['level', '#th-level', '#o-level']].forEach(([k, i, o]) => {
+                $(i).addEventListener('input', e => {T[k] = +e.target.value; $(o).textContent = T[k] + '%';});
+            });
+            $$('[data-sim]').forEach(b => b.addEventListener('click', () => {
+                if (S.running) {toast('รอให้ล้างเสร็จก่อนจึงจะทดลองได้'); return;}
+                S.manual = -1; const k = b.dataset.sim;
+                if (k === 'chem') S.chem = 7; if (k === 'sed') {S.sediment = 78; S.turb = 54;} if (k === 'level') S.level = 15;
+                if (k === 'ok') {S.chem = 85; S.sediment = 6; S.turb = 5; S.level = 78; S.refill = false;}
+                toast(k === 'ok' ? 'ตั้งค่าเป็นปกติแล้ว' : 'ปรับค่าตามสถานการณ์แล้ว ดูการแจ้งเตือนได้เลย');
+            }));
+
+            /* ---------- log ---------- */
+            function renderLog() {
+                $('#log').innerHTML = LOG.slice(0, 4).map(l => `<li><div>${l.t}<small>${l.d}</small></div><span class="r num">สะอาด ${l.c}%</span></li>`).join('');
+            }
+
+            /* ---------- physics ---------- */
+            function move(i, rate) {const tg = STEPS[i].tg; for (const k of ['level', 'sediment', 'turb']) S[k] += (tg[k] - S[k]) * rate;}
+            function tick() {
+                if (S.running) {
+                    S.stepT += 0.25; move(S.step, 0.09);
+                    if (S.step === 2) S.chem = Math.max(0, S.chem - 10 / (STEPS[2].sec / 0.25));
+                    if (S.stepT >= STEPS[S.step].sec - 0.001) {S.step++; S.stepT = 0; if (S.step >= STEPS.length) finishClean();}
+                } else if (S.manual >= 0) {
+                    move(S.manual, 0.04); if (S.manual === 2) S.chem = Math.max(0, S.chem - 0.05);
+                } else {
+                    S.level = clamp(S.level + rnd() * 0.5 + (S.refill ? 0.4 : (72 - S.level) * 0.002), 2, 99);
+                    if (S.refill && S.level >= 86) S.refill = false;
+                    S.sediment = clamp(S.sediment + rnd() * 0.12 + 0.01, 0, 100);
+                    S.turb = clamp(S.turb + rnd() * 1.2 + (S.sediment * 0.68 - S.turb) * 0.02, 2, 100);
+                }
+                S.temp = clamp(S.temp + rnd() * 0.08, 27, 33); S.ph = clamp(S.ph + rnd() * 0.03, 6.8, 7.6);
+                S.clean += (calcClean() - S.clean) * 0.25;
+            }
+
+            /* ---------- paint ---------- */
+            const VAL = {
+                clean: () => Math.round(S.clean), level: () => Math.round(S.level), sediment: () => Math.round(S.sediment), chem: () => Math.round(S.chem), turb: () => Math.round(S.turb),
+                temp: () => S.temp.toFixed(1), ph: () => S.ph.toFixed(1), liters: () => fmt(S.level * 20), thick: () => (S.sediment * 0.06).toFixed(1),
+                chemL: () => (S.chem * 0.05).toFixed(1) + ' ลิตร', washes: () => Math.floor(S.chem / 10),
+                tchem: () => T.chem, tsed: () => T.sed, tlevel: () => T.level
+            };
+            function paint() {
+                $$('[data-b]').forEach(el => {const f = VAL[el.dataset.b]; if (f) el.textContent = f();});
+                $$('[data-w]').forEach(el => {el.style.width = clamp(S[el.dataset.w]) + '%';});
+
+                const act = S.running ? S.step : S.manual;
+                const tank = $('#tank'); tank.dataset.step = act;
+                $('#wLevel').setAttribute('transform', `translate(0 ${(200 - S.level * 1.64).toFixed(1)})`);
+                $('#wTurb').style.opacity = (S.turb / 100 * 0.6).toFixed(2);
+                $('#sedG').setAttribute('transform', `translate(0 ${(200 - S.sediment * 0.4).toFixed(1)})`);
+
+                const st = stOf(S.clean);
+                const hero = $('#hero');
+                hero.dataset.st = S.running ? 'run' : st.k;
+                $('#h-tag').textContent = S.running ? 'กำลังล้าง' : st.tag;
+                $('#h-verdict').textContent = S.running ? STEPS[S.step].desc : st.v;
+                $('#hb-chem').classList.toggle('flag', S.chem < T.chem);
+                $('#hb-sed').classList.toggle('flag', S.sediment > T.sed);
+                $('#hb-level').classList.toggle('flag', S.level < T.level);
+                $('#gauge-card').dataset.st = st.k;
+                $('#g-fill').style.strokeDasharray = `${clamp(S.clean)} 100`;
+                $('#g-verdict').textContent = st.v;
+
+                // action card
+                $$('#steps li').forEach((li, i) => {
+                    li.classList.toggle('done', S.running && i < S.step);
+                    li.classList.toggle('cur', S.running && i === S.step);
+                });
+                $('#btn-start').hidden = S.running; $('#btn-stop').hidden = !S.running; $('#prog').hidden = !S.running;
+                $('#act-state').textContent = S.running ? `ขั้นที่ ${S.step + 1} จาก ${STEPS.length}` : (S.manual >= 0 ? 'กำลังควบคุมเอง' : 'พร้อมทำงาน');
+                if (S.running) {
+                    const done = STEPS.slice(0, S.step).reduce((a, s) => a + s.sec, 0) + S.stepT;
+                    const pct = Math.min(100, Math.round(done / TOTAL * 100));
+                    $('#prog-fill').style.width = pct + '%'; $('#prog-pct').textContent = pct + '%';
+                    $('#prog-eta').textContent = `เหลือประมาณ ${Math.max(1, Math.ceil((1 - done / TOTAL) * REAL_MIN))} นาที`;
+                    $('#step-desc').textContent = STEPS[S.step].desc;
+                } else {
+                    $('#step-desc').textContent = S.manual >= 0 ? `ควบคุมเอง: ${STEPS[S.manual].name} (ปิดที่ปุ่มด้านล่างเมื่อเสร็จ)` : `ใช้เวลาประมาณ ${REAL_MIN} นาที และงดจ่ายน้ำระหว่างล้าง`;
+                }
+                $$('.tile[data-tile]').forEach(t => {
+                    const i = +t.dataset.tile, on = S.manual === i;
+                    t.classList.toggle('on', on); t.setAttribute('aria-pressed', String(on));
+                    t.disabled = S.running; t.querySelector('small').textContent = S.running && S.step === i ? 'ระบบกำลังทำ' : (on ? 'กำลังทำงาน' : 'ปิดอยู่');
+                });
+
+                renderAlerts();
+                drawChart();
+                renderDevices();
+                if (sheet.classList.contains('open')) paintCam();
+                $('#tk-att').textContent = `ระดับน้ำ ${Math.round(S.level)}% · ตะกอน ${Math.round(S.sediment)}% · น้ำยา ${Math.round(S.chem)}% · บันทึกการทำงาน 7 วัน`;
+            }
+
+            /* ---------- chart ---------- */
+            const H = {clean: [], level: [], sediment: []};
+            (function seed() {
+                for (let i = 0; i < 48; i++) {
+                    const k = (47 - i);
+                    const lv = clamp(S.level + Math.sin(i / 6) * 4 + rnd() * 2), sd = clamp(S.sediment - k * 0.18 + rnd() * 1.2);
+                    H.level.push(lv); H.sediment.push(sd); H.clean.push(clamp(100 - sd * 0.42 - clamp(sd * 0.68 + rnd() * 4) * 0.35));
+                }
+            })();
+            let metric = 'clean';
+            const MET = {clean: {c: 'var(--brand)'}, level: {c: 'var(--water)', th: () => T.level, thl: 'เกณฑ์ต่ำสุด'}, sediment: {c: 'var(--sed)', th: () => T.sed, thl: 'เกณฑ์เตือน'}};
+            $('#ch-seg').addEventListener('click', e => {const b = e.target.closest('button'); if (!b) return; metric = b.dataset.m; $$('#ch-seg button').forEach(x => x.classList.toggle('on', x === b)); drawChart();});
+            (function grid() {
+                const g = $('#ch-grid'); let h = '';
+                [[130, '0'], [70, '50'], [10, '100']].forEach(([y, l]) => {h += `<line x1="28" x2="312" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="22" y="${y + 3}" text-anchor="end">${l}</text>`;});
+                g.innerHTML = h;
+            })();
+            function drawChart() {
+                const arr = H[metric], m = MET[metric], n = arr.length;
+                const X = i => 28 + i / (n - 1) * 284, Y = v => 130 - clamp(v) * 1.2;
+                const pts = arr.map((v, i) => `${X(i).toFixed(1)} ${Y(v).toFixed(1)}`);
+                const line = $('#ch-line'), area = $('#ch-area'), dot = $('#ch-dot');
+                line.setAttribute('d', 'M' + pts.join(' L')); line.style.stroke = m.c;
+                area.setAttribute('d', 'M' + pts.join(' L') + ` L312 130 L28 130 Z`); area.style.fill = m.c;
+                dot.setAttribute('cx', X(n - 1)); dot.setAttribute('cy', Y(arr[n - 1])); dot.style.fill = m.c;
+                const th = $('#ch-th'), tl = $('#ch-thl');
+                if (m.th) {
+                    const y = Y(m.th()); th.setAttribute('x1', 28); th.setAttribute('x2', 312); th.setAttribute('y1', y); th.setAttribute('y2', y); th.style.stroke = 'var(--danger)'; th.style.opacity = 1;
+                    tl.setAttribute('y', y - 4); tl.textContent = `${m.thl} ${m.th()}%`; tl.style.opacity = 1;
+                }
+                else {th.style.opacity = 0; tl.style.opacity = 0;}
+            }
+            function pushHist() {
+                H.clean.push(S.clean); H.level.push(S.level); H.sediment.push(S.sediment);
+                for (const k in H) if (H[k].length > 48) H[k].shift();
+            }
+
+            /* ---------- schedule ---------- */
+            function upcoming(n) {
+                const out = []; const now = new Date();
+                const [hh, mm] = SC.time.split(':').map(Number);
+                const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const sinceMon = (now.getDay() + 6) % 7;
+                for (let d = 0; d < 800 && out.length < n; d++) {
+                    const day = new Date(start); day.setDate(start.getDate() + d);
+                    const at = new Date(day); at.setHours(hh, mm, 0, 0);
+                    if (at <= now) continue;
+                    if (SC.mode === 'weekly') {
+                        if (!SC.days.includes(day.getDay())) continue;
+                        if (Math.floor((d + sinceMon) / 7) % SC.weeks !== 0) continue;
+                    } else if (d % SC.every !== 0) continue;
+                    out.push({at, d});
+                }
+                return out;
+            }
+            const rel = d => d === 0 ? 'วันนี้' : d === 1 ? 'พรุ่งนี้' : `อีก ${d} วัน`;
+            function renderSched() {
+                $('#sc-enabled').setAttribute('aria-checked', String(SC.enabled));
+                $$('#sc-mode button').forEach(b => b.classList.toggle('on', b.dataset.mode === SC.mode));
+                $('#sc-weekly').hidden = SC.mode !== 'weekly'; $('#sc-interval').hidden = SC.mode !== 'interval';
+                $$('#sc-days button').forEach(b => {const on = SC.days.includes(+b.dataset.d); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));});
+                $('#sc-weeks').textContent = SC.weeks; $('#sc-every').textContent = SC.every;
+                $$('[data-sc]').forEach(b => b.setAttribute('aria-checked', String(SC[b.dataset.sc])));
+                const up = upcoming(4);
+                let when, inn = '', home;
+                if (!SC.enabled) {when = 'ปิดอยู่'; inn = 'เปิดสวิตช์เพื่อให้ล้างตามตาราง'; home = 'ปิดอยู่';}
+                else if (!up.length) {when = 'ยังไม่ได้เลือกวัน'; inn = 'เลือกวันอย่างน้อย 1 วัน'; home = 'ยังไม่ได้เลือกวัน';}
+                else {const u = up[0]; when = `${fmtDate(u.at)} · ${pad(u.at.getHours())}:${pad(u.at.getMinutes())} น.`; inn = rel(u.d); home = `${fmtDate(u.at)} ${pad(u.at.getHours())}:${pad(u.at.getMinutes())} น. (${rel(u.d)})`;}
+                $('#sc-when').textContent = when; $('#sc-in').textContent = inn; $('#home-next').textContent = home;
+                $('#sc-up').innerHTML = up.length && SC.enabled ? up.map(u => `<li><span>${fmtDate(u.at)}</span><small class="num">${pad(u.at.getHours())}:${pad(u.at.getMinutes())} น. · ${rel(u.d)}</small></li>`).join('')
+                    : `<li><small>ยังไม่มีรอบที่กำหนดไว้</small></li>`;
+            }
+            $('#sc-enabled').addEventListener('click', () => {SC.enabled = !SC.enabled; renderSched();});
+            $('#sc-mode').addEventListener('click', e => {const b = e.target.closest('button'); if (!b) return; SC.mode = b.dataset.mode; renderSched();});
+            $('#sc-days').addEventListener('click', e => {const b = e.target.closest('button'); if (!b) return; const d = +b.dataset.d; SC.days = SC.days.includes(d) ? SC.days.filter(x => x !== d) : [...SC.days, d]; renderSched();});
+            $('#sc-weekly').addEventListener('click', e => {const b = e.target.closest('[data-w]'); if (!b) return; SC.weeks = clamp(SC.weeks + +b.dataset.w, 1, 8); renderSched();});
+            $('#sc-interval').addEventListener('click', e => {const b = e.target.closest('[data-e]'); if (!b) return; SC.every = clamp(SC.every + +b.dataset.e, 1, 30); renderSched();});
+            $('#sc-time').addEventListener('input', e => {if (e.target.value) {SC.time = e.target.value; renderSched();} });
+            $$('[data-sc]').forEach(b => b.addEventListener('click', () => {SC[b.dataset.sc] = !SC[b.dataset.sc]; renderSched();}));
+            $('#sc-save').addEventListener('click', () => {
+                if (SC.enabled && SC.mode === 'weekly' && !SC.days.length) {toast('เลือกวันอย่างน้อย 1 วันก่อนบันทึก'); return;}
+                toast('บันทึกตารางเวลาแล้ว');
+            });
+
+            /* ---------- technician ---------- */
+            const TK = {issues: [], urg: 'now', when: 'พรุ่งนี้ เช้า', stage: -1, timers: []};
+            const TK_STAGES = ['ส่งคำขอแล้ว', 'ช่างรับงานแล้ว', 'ช่างกำลังเดินทาง', 'ช่างถึงหน้างาน'];
+            $('#tk-issues').addEventListener('click', e => {
+                const b = e.target.closest('.chip'); if (!b) return; const v = b.dataset.v;
+                TK.issues = TK.issues.includes(v) ? TK.issues.filter(x => x !== v) : [...TK.issues, v]; b.classList.toggle('on', TK.issues.includes(v));
+            });
+            $('#tk-urg').addEventListener('click', e => {
+                const b = e.target.closest('button'); if (!b) return; TK.urg = b.dataset.u;
+                $$('#tk-urg button').forEach(x => x.classList.toggle('on', x === b)); $('#tk-when').hidden = TK.urg !== 'later';
+                $('#tk-send-l').textContent = TK.urg === 'now' ? 'เรียกช่างทันที' : 'ส่งคำขอนัดหมาย';
+            });
+            $('#tk-when').addEventListener('click', e => {const b = e.target.closest('.chip'); if (!b) return; TK.when = b.dataset.v; $$('#tk-when .chip').forEach(x => x.classList.toggle('on', x === b));});
+            function renderDevices() {
+                const dev = [
+                    ['ปั๊มระบายน้ำ', null], ['หัวฉีดหมุน 360°', null],
+                    ['ปั๊มน้ำยา', S.chem < T.chem ? 'น้ำยาเหลือน้อย' : null],
+                    ['กล้องตรวจสอบ', null],
+                    ['ท่อดูดตะกอน', S.sediment > T.sed ? 'ตะกอนสะสมสูง' : null]
+                ];
+                const key = dev.map(d => d[1]).join('|'); const ul = $('#tk-dev'); if (ul.dataset.k === key) return; ul.dataset.k = key;
+                ul.innerHTML = dev.map(([n, w]) => `<li><span>${n}</span><span class="st ${w ? 'w' : ''}"><i class="dot"></i>${w || 'ปกติ'}</span></li>`).join('');
+            }
+            function renderTrack() {
+                $('#tk-form').hidden = TK.stage >= 0; $('#tk-track').hidden = TK.stage < 0; if (TK.stage < 0) return;
+                $('#tk-tl').innerHTML = TK_STAGES.map((s, i) => `<li class="${i < TK.stage ? 'done' : i === TK.stage ? 'cur' : ''}"><span class="k"></span>${s}</li>`).join('');
+                $('#tk-title').textContent = TK_STAGES[TK.stage];
+                $('#tk-eta').textContent = TK.stage === 2 ? 'ถึงใน ~25 นาที' : (TK.stage < 2 ? 'กำลังจัดช่างให้' : '');
+                $('#tk-person').hidden = TK.stage < 1;
+                $('#tk-sum').textContent = `อาการ: ${TK.issues.join(', ') || 'ไม่ได้ระบุ'} · ${TK.urg === 'now' ? 'ด่วน วันนี้' : 'นัด ' + TK.when}`;
+            }
+            $('#tk-send').addEventListener('click', () => {
+                if (!TK.issues.length && !$('#tk-note').value.trim()) {toast('เลือกอาการที่พบอย่างน้อย 1 อย่าง'); return;}
+                TK.stage = 0; renderTrack(); paint(); $('.screen[data-screen="tech"]').scrollTop = 0;
+                toast(TK.urg === 'now' ? 'ส่งคำขอแล้ว กำลังหาช่างใกล้คุณ' : 'ส่งคำขอนัดหมายแล้ว');
+                TK.timers = [setTimeout(() => {TK.stage = 1; renderTrack();}, 3200), setTimeout(() => {TK.stage = 2; renderTrack();}, 7000)];
+            });
+            $('#tk-cancel').addEventListener('click', () => {TK.timers.forEach(clearTimeout); TK.stage = -1; renderTrack(); toast('ยกเลิกคำขอแล้ว');});
+            $('#tk-call').addEventListener('click', () => toast('ต้นแบบ: ปุ่มนี้จะโทรออกไปที่ศูนย์บริการ'));
+            $('#tk-callp').addEventListener('click', () => toast('ต้นแบบ: ปุ่มนี้จะโทรหาช่างวิชัย'));
+
+            /* ---------- boot ---------- */
+            function clock() {const n = new Date(); $('#clock').textContent = `${n.getHours()}:${pad(n.getMinutes())}`;}
+            clock(); setInterval(clock, 20000);
+            renderLog(); renderSched(); renderTrack();
+            S.clean = calcClean(); paint(); goto('home');
+            let n = 0;
+            setInterval(() => {tick(); if (++n % 4 === 0) pushHist(); paint();}, 250);
+        })();
+    </script>
+</body>
+
+</html>
